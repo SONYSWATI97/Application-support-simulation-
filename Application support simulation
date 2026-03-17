@@ -1,0 +1,103 @@
+Add incident_manager.py
+import json
+import datetime
+
+FILE = "issues.json"
+
+# Load existing issues
+def load_issues():
+    try:
+        with open(FILE, "r") as f:
+            return json.load(f)
+    except:
+        return []
+
+# Save issues to file
+def save_issues(issues):
+    with open(FILE, "w") as f:
+        json.dump(issues, f, indent=4)
+
+# Create new issue
+def create_issue(title, priority):
+    issues = load_issues()
+
+    issue = {
+        "id": len(issues) + 1,
+        "title": title,
+        "priority": priority,
+        "status": "OPEN",
+        "created_at": str(datetime.datetime.now())
+    }
+
+    issues.append(issue)
+    save_issues(issues)
+
+    print("✅ Issue created successfully!")
+
+# View all issues
+def view_issues():
+    issues = load_issues()
+
+    if not issues:
+        print("No issues found.")
+    else:
+        print("\n--- All Issues ---")
+        for issue in issues:
+            print(f"ID: {issue['id']}")
+            print(f"Title: {issue['title']}")
+            print(f"Priority: {issue['priority']}")
+            print(f"Status: {issue['status']}")
+            print(f"Created At: {issue['created_at']}")
+            print("----------------------")
+
+# Resolve an issue
+def resolve_issue(issue_id):
+    issues = load_issues()
+    found = False
+
+    for issue in issues:
+        if issue["id"] == issue_id:
+            issue["status"] = "RESOLVED"
+            found = True
+
+    if found:
+        save_issues(issues)
+        print("✅ Issue resolved successfully!")
+    else:
+        print("❌ Issue not found!")
+
+# Menu system
+def menu():
+    while True:
+        print("\n===== Incident Management System =====")
+        print("1. Create Issue")
+        print("2. View Issues")
+        print("3. Resolve Issue")
+        print("4. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            title = input("Enter issue title: ")
+            priority = input("Enter priority (High/Medium/Low): ")
+            create_issue(title, priority)
+
+        elif choice == "2":
+            view_issues()
+
+        elif choice == "3":
+            try:
+                issue_id = int(input("Enter issue ID: "))
+                resolve_issue(issue_id)
+            except ValueError:
+                print("❌ Please enter a valid number!")
+
+        elif choice == "4":
+            print("Exiting...")
+            break
+
+        else:
+            print("❌ Invalid choice!")
+
+if __name__ == "__main__":
+    menu()
